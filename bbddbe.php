@@ -6,6 +6,16 @@ session_start();
     /*if(!isset($_SESSION["guarda"])){
         return;
     }*/
+    $sql = "SELECT id, email, password FROM users";
+    $result = $conn->query($sql);
+    if ($result->num_rows > 0) {
+        // output data of each row
+        while($row = $result->fetch_assoc()) {
+            echo "id: " . $row["id"]. " - Email: " . $row["email"]. " " . $row["password"]. "<br>";
+        }
+    } else {
+        echo "0 results";
+    }
     if(isset($_POST["type"])){
         if($_POST["type"] === "delete"){
             if(isset($_SESSION["guarda"])){
