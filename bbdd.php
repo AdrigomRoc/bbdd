@@ -23,13 +23,11 @@
                 header("Location: bbddbe.php");
             }else{
                 header("Location: bbdd.php");
-            }
-            
-        }
-       
+            }   
+        }   
     }
 ?>
-<form action="cookies.php" method="post">
+<form action="bbdd.php" method="post">
         <input type="hidden" name="type" value="login">
         Correu: 
         <input type="email" name="email">
