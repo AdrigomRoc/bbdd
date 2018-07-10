@@ -52,7 +52,38 @@ session_start();
                 }
                 
             }
+        }elseif($_POST["type"] === "form"){
+            $sql = "SELECT * FROM users where email = '".$_POST["email"]."' ";
+            $result = mysqli_fetch_all(mysqli_query($conn, $sql));
+            if(isset($_POST["email"])){
+                $sqlu="UPDATE users SET email=".$_POST["email"]." ";
+            }
+            if(isset($_POST["password"])){
+                $sqlu="UPDATE users SET email=".$_POST["email"]." ";
+            }
+            if(isset($_POST["telefon"])){
+                if($result[0][3]!=null){
+                    $sqlu="UPDATE users SET email=".$_POST["email"]." ";
+                }else{
+                    $sqli="INSERT INTO users(telefono) values(".$new.")";
+                }
+            }
+            if(isset($_POST["nom"])){
+                if($result[0][4]!=null){
+                    $sqlu="UPDATE users SET email=".$_POST["email"]." ";
+                }else{
+                    $sqli="INSERT INTO users(nombre) values(".$new.")";
+                }
+            }
+            if(isset($_POST["dni"])){
+                if($result[0][5]!=null){
+                    $sqlu="UPDATE users SET email=".$_POST["email"]." ";
+                }else{
+                    $sqli="INSERT INTO users(dni) values(".$new.")";
+                }
+            }
         }elseif($_POST["type"] === "logout"){
+            
             session_destroy();
             unset($_SESSION["guarda"]);
             session_unset();
@@ -66,7 +97,7 @@ session_start();
 ?>
 
     <form action="bbdd.php" method="post">
-        <input type="hidden" name="type" value="logout">
+        <input type="hidden" name="type" value="form">
         <br>
         Modifica la teva informació si vols
         <br>
@@ -77,14 +108,18 @@ session_start();
         <input type="password" name="password">
         <br>
         Telefon: 
-        <input type="text" name="telefon.">
+        <input type="text" name="telefon">
         <br>
         Nom: 
         <input type="text" name="nom">
         <br>
         DNI: 
         <input type="text" name="dni">
-    <hr/>
+        
+    </form>
+    <form action="bbdd.php" method="post">
+        <input type="hidden" name="type" value="logout">
+        <hr/>
         <input type="submit" value="logout">
         <br/>
     </form>
