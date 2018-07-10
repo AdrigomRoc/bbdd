@@ -11,20 +11,20 @@ session_start();
     $pasuser = null;
     $usermail = null;
 
-   if(isset($_POST["type"])){
+    if(isset($_POST["type"])){
+        $conn = new mysqli($servername, $username, $password, "bd_php");
         if($_POST["type"] === "registre"){
             if(isset($_POST["password"])&&isset($_POST["email"]) ){
-                $pasuser = password_hash($_POST["password"], PASSWORD_BCRYPT);
+                $pasuser = password_hash($_POST["password"], PASSWORD_DEFAULT);
                 $usermail = $_POST["email"];
-                $_SESSION["guarda"] = $usermail;
+                // $_SESSION["guarda"] = $usermail;
                 //fer registre amb bd
-                $conn = new mysqli($servername, $username, $password, "bd_php");
+               
                 if ($conn->connect_error) {
                     die("Connection failed: " . $conn->connect_error);
                 }
                 $sql = "INSERT INTO users (email,password) VALUES ('". $usermail ."', '". $pasuser ."')";
-                $result = $conn->query($sql);
-                
+                                
                 if (mysqli_query($conn,$sql)) {
                     echo "Usuari registrat en la bbdd";
                 } else {
@@ -38,6 +38,19 @@ session_start();
             if(isset($_POST["password"]) && isset($_POST["email"]) ){
                 $guardaemail= $_POST["email"];
                 $guardapassword = $_POST["password"];
+                $sql = "SELECT * FROM users where email = '".$guardaemail."' ";
+                $result = mysqli_fetch_all(mysqli_query($conn, $sql));
+                
+                if(count($result)>0){
+                    if(password_verify($guardapassword,$result[0][2])){
+                        $_SESSION["guarda"] = $result[0][0];
+                    }else{
+                        echo "contrasenya incorrecta";
+                    }
+                }else{
+                    echo "primer registret";
+                }
+                
             }
         }elseif($_POST["type"] === "logout"){
             session_destroy();
@@ -51,19 +64,26 @@ session_start();
     if(isset($_SESSION["guarda"]) ){
         //mostrare login
 ?>
+
     <form action="bbdd.php" method="post">
         <input type="hidden" name="type" value="logout">
         <br>
-        Colores:
-    <input type="radio" id="color1"
-           name="color" value="blu">
-    <label for="color1">Blau</label>
-    <input type="radio" id="color2"
-           name="color" value="gre">
-    <label for="color2">Verde</label>
-    <input type="radio" id="color3"
-           name="color" value="yel">
-    <label for="color3">Groc</label>
+        Modifica la teva informació si vols
+        <br>
+        Correu: 
+        <input type="email" name="email">
+        <br>
+        Password: 
+        <input type="password" name="password">
+        <br>
+        Telefon: 
+        <input type="text" name="telefon.">
+        <br>
+        Nom: 
+        <input type="text" name="nom">
+        <br>
+        DNI: 
+        <input type="text" name="dni">
     <hr/>
         <input type="submit" value="logout">
         <br/>
