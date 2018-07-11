@@ -10,9 +10,12 @@ session_start();
 
     $pasuser = null;
     $usermail = null;
-
-    if(isset($_POST["type"])){
+    $conn = null;
+    if(isset($_POST["type"]) || isset($_SESSION["guarda"])){
         $conn = new mysqli($servername, $username, $password, "bd_php");
+    }
+    
+    if(isset($_POST["type"])){
         if($_POST["type"] === "registre"){
             if(isset($_POST["password"])&&isset($_POST["email"]) ){
                 $pasuser = password_hash($_POST["password"], PASSWORD_DEFAULT);
@@ -49,84 +52,50 @@ session_start();
                 }else{
                     echo "primer registret";
                 }
-                
+            
             }
         }elseif($_POST["type"] === "form"){
-            $sql = "SELECT * FROM users where email = '".$_POST["email"]."' ";
+            $sql = "SELECT * FROM users where id = '".$_SESSION["guarda"]."' ";
             $result = mysqli_fetch_all(mysqli_query($conn, $sql));
-            if(isset($_POST["email"])){
-                $sqlu="UPDATE users SET email=".$_POST["email"]." ";
+            if(isset($_POST["email"]) && $_POST["email"] !== ""){
+                $sqlu="UPDATE users SET email='".$_POST["email"]."' where id = ". $_SESSION["guarda"]."; ";
                 if ($conn->query($sqlu) === TRUE) {
                     echo "Record updated successfully";
                 } else {
                     echo "Error updating record: " . $conn->error;
                 }
-                $conn->close();
             }
-            if(isset($_POST["password"])){
-                $sqlu="UPDATE users SET password=".$_POST["password"]." ";
+            if(isset($_POST["password"]) && $_POST["password"] !== ""){
+                $hash = password_hash($_POST["password"], PASSWORD_DEFAULT);
+                $sqlu = "UPDATE users SET password='".$hash."' where id = ". $_SESSION["guarda"].";";
                 if ($conn->query($sqlu) === TRUE) {
                     echo "Record updated successfully";
                 } else {
                     echo "Error updating record: " . $conn->error;
                 }
-                $conn->close();
             }
-            if(isset($_POST["telefono"])){
-                if($result[0][3]!=null){
-                    $sqlu="UPDATE users SET telefono=".$_POST["telefono"]." ";
-                    if ($conn->query($sqlu) === TRUE) {
-                        echo "Record updated successfully";
-                    } else {
-                        echo "Error updating record: " . $conn->error;
-                    }
-                    $conn->close();
-                }else{
-                    $sqli="INSERT INTO users(telefono) values(".$_POST["telefono"].")";
-                    if ($conn->query($sqli) === TRUE) {
-                        echo "New record created successfully";
-                    } else {
-                        echo "Error: " . $sqli . "<br>" . $conn->error;
-                    }
-                    $conn->close();
+            if(isset($_POST["telefono"]) && $_POST["telefono"] !== ""){
+                $sqlu="UPDATE users SET telefono='".$_POST["telefono"]."' where id = ". $_SESSION["guarda"].";";
+                if ($conn->query($sqlu) === TRUE) {
+                    echo "Record updated successfully";
+                } else {
+                    echo "Error updating record: " . $conn->error;
                 }
             }
-            if(isset($_POST["nom"])){
-                if($result[0][4]!=null){
-                    $sqlu="UPDATE users SET nombre=".$_POST["nombre"]." ";
-                    if ($conn->query($sqlu) === TRUE) {
-                        echo "Record updated successfully";
-                    } else {
-                        echo "Error updating record: " . $conn->error;
-                    }
-                    $conn->close();
-                }else{
-                    $sqli="INSERT INTO users(nombre) values(".$_POST["nombre"].")";
-                    if ($conn->query($sql) === TRUE) {
-                        echo "New record created successfully";
-                    } else {
-                        echo "Error: " . $sqli . "<br>" . $conn->error;
-                    }
-                    $conn->close();
+            if(isset($_POST["nombre"]) && $_POST["nombre"] !== ""){
+                $sqlu="UPDATE users SET nombre='".$_POST["nombre"]."' where id = ". $_SESSION["guarda"].";";
+                if ($conn->query($sqlu) === TRUE) {
+                    echo "Record updated successfully";
+                } else {
+                    echo "Error updating record: " . $conn->error;
                 }
             }
-            if(isset($_POST["dni"])){
-                if($result[0][5]!=null){
-                    $sqlu="UPDATE users SET dni=".$_POST["dni"]." ";
-                    if ($conn->query($sqlu) === TRUE) {
-                        echo "Record updated successfully";
-                    } else {
-                        echo "Error updating record: " . $conn->error;
-                    }
-                    $conn->close();
-                }else{
-                    $sqli="INSERT INTO users(dni) values(".$_POST["dni"].")";
-                    if ($conn->query($sql) === TRUE) {
-                        echo "New record created successfully";
-                    } else {
-                        echo "Error: " . $sqli . "<br>" . $conn->error;
-                    }
-                    $conn->close();
+            if(isset($_POST["dni"]) && $_POST["dni"] !== ""){
+                $sqlu="UPDATE users SET dni='".$_POST["dni"]."' where id = ". $_SESSION["guarda"].";";
+                if ($conn->query($sqlu) === TRUE) {
+                    echo "Record updated successfully";
+                } else {
+                    echo "Error updating record: " . $conn->error;
                 }
             }
         }elseif($_POST["type"] === "logout"){
@@ -141,6 +110,8 @@ session_start();
 <?php  
     if(isset($_SESSION["guarda"]) ){
         //mostrare login
+        $sql = "SELECT * FROM users where id = ".$_SESSION["guarda"];
+        $user = mysqli_fetch_all(mysqli_query($conn, $sql))[0];
 ?>
 
     <form action="bbdd.php" method="post">
@@ -149,19 +120,22 @@ session_start();
         Modifica la teva informació si vols
         <br>
         Correu: 
-        <input type="email" name="email">
+        <input type="email" name="email" value="<?php echo $user[1]; ?>">
         <br>
         Password: 
         <input type="password" name="password">
         <br>
         Telefon: 
-        <input type="text" name="telefono">
+        <input type="text" name="telefono" value="<?php echo $user[3]; ?>">
         <br>
         Nom: 
-        <input type="text" name="nombre">
+        <input type="text" name="nombre" value="<?php echo $user[4]; ?>">
         <br>
         DNI: 
-        <input type="text" name="dni">
+        <input type="text" name="dni" value="<?php echo $user[5]; ?>">
+        <br>
+        <input type="submit" value="update">
+        <br>
         
     </form>
     <form action="bbdd.php" method="post">
@@ -203,3 +177,9 @@ session_start();
 ?>
 </body>
 </html>
+
+<?php
+    if($conn){
+        $conn->close();
+    }
+?>
